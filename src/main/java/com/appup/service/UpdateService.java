@@ -20,12 +20,14 @@ public class UpdateService {
         return updateMapper.select(platform);
     }
 
-    public Information selectVer(String version){
-        return updateMapper.selectByVer(version);
+    public Information selectVer(String version,String platform){
+        return updateMapper.selectByVer(version,platform);
     }
 
     public int check(String token){
         return updateMapper.check(token);
     }
+
+    public boolean delete(String version,String platform){return updateMapper.delete(version,platform)>0;}
 
 }

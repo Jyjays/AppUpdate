@@ -67,7 +67,7 @@
     </dependencies>
 
     <build>
-        <finalName>appUpdate-test</finalName>
+        <finalName>appUpdate-1.1-test</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

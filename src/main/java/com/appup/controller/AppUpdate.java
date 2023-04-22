@@ -32,14 +32,6 @@ public class AppUpdate {
     @ApiOperation("检测更新")
     public Result Check(@RequestParam String version,String platform) {
         List<String> list = updateService.Get(platform);
-
-//        String latestVersion = "";
-//        for (String version2 : list) {
-//            if (version.compareTo(version2) < 0) {
-//                latestVersion = version2;
-//                break;
-//            }
-//        }
         String latestVersion = "";
         int[] curVersion = Arrays.stream(version.split("\\."))
                 .mapToInt(Integer::parseInt).toArray();
@@ -68,12 +60,29 @@ public class AppUpdate {
         if (latestVersion.isEmpty()) {
             return new Result("没有可用的更新");
         } else {
-            Information information = updateService.selectVer(latestVersion);
+            Information information = updateService.selectVer(latestVersion,platform);
 
             return new Result(latestVersion, information.getUrl(), information.getPlatform(), information.getDescription(),
                     "False");
 
         }
+    }
+
+    @DeleteMapping("/delete")
+    @ApiOperation("删除更新")
+    public String deleteVersion(@RequestParam("version") String version,@RequestParam("platform") String platform,@RequestHeader("Authorization") String token){
+        int count = updateService.check(token);
+        if (count>0) {
+            Information information = updateService.selectVer(version,platform);
+            if(information==null){return "不存在此版本";}
+            boolean flag = updateService.delete(version,platform);
+            return (flag ? "message:删除成功" : "message:删除失败");
+        }
+        else return "没有访问权限";
+
+
+       // return new Result(information.getVersion(),information.getUrl(),flag?"删除成功":"删除失败",information.getPlatform(),null);
+
     }
 
 

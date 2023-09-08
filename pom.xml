@@ -63,11 +63,22 @@
             <artifactId>jjwt</artifactId>
             <version>0.9.1</version>
         </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.26</version> <!-- 请使用最新版本 -->
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+
 
     </dependencies>
 
     <build>
-        <finalName>appUpdate-1.1-test</finalName>
+        <finalName>appUpdate-1.1.0</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

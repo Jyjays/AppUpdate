@@ -62,8 +62,8 @@ public class AppUpdate {
         } else {
             Information information = updateService.selectVer(latestVersion,platform);
 
-            return new Result(latestVersion, information.getUrl(), information.getPlatform(), information.getDescription(),
-                    "False");
+            return new Result(latestVersion, information.getUrl(), information.getDescription(),information.getPlatform()
+                    ,"False");
 
         }
     }

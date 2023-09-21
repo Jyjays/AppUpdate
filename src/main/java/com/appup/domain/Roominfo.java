@@ -1,5 +1,6 @@
 package com.appup.domain;
 
+
 public class Roominfo {
     private String arename;
     private String building;

@@ -1,25 +1,23 @@
 package com.appup.controller;
 
 
+import com.appup.domain.ImageInformation;
+import com.appup.domain.Results;
 import com.appup.domain.Roominfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
 
 @RestController
 @Api(value = "爬虫")
@@ -78,6 +76,47 @@ public class Spider {
 
         return "errmsg not found in response.";
     }
+    @ApiOperation(value = "获取图标")
+    @GetMapping("/getIcon")
+    public String searchAppByName(@RequestParam String name) {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.set(HttpHeaders.USER_AGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36");
+
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        String url = "https://itunes.apple.com/search?term=" + name + "&country=us&entity=software&limit=12&callback=jsonp_1695208077236_88151";
+
+        ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+        String responseBody = responseEntity.getBody();
+
+        // 去掉 JSONP 包装
+        int jsonStart = responseBody.indexOf("{");
+        int jsonEnd = responseBody.lastIndexOf("}") + 1;
+
+        if (jsonStart >= 0 && jsonEnd > jsonStart) {
+            String jsonData = responseBody.substring(jsonStart, jsonEnd);
+
+            ObjectMapper objectMapper = new ObjectMapper();
+
+            try {
+                ImageInformation imageInformation = objectMapper.readValue(jsonData, ImageInformation.class);
+                // 在循环中查找包含 name 的数据
+                for (Results result : imageInformation.getResults()) {
+                    if (result.getTrackCensoredName().contains(name)) {
+                        return "trackCensoredName: " + result.getTrackCensoredName() + ", artworkUrl512: " + result.getArtworkURL512();
+                    }
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                return "Error: " + e.getMessage();
+            }
+        }
+
+        return "not found";
+    }
+
 
     private String getJson(Roominfo request) {
         // 构建JSON数据
@@ -87,11 +126,30 @@ public class Spider {
         Map<String, Object> building = new HashMap<>();
         Map<String, Object> floor = new HashMap<>();
         Map<String, Object> room = new HashMap<>();
-
+        Map<String, String> buildingMap = new HashMap<>();
+        buildingMap.put("兰梅","14");
+        buildingMap.put("南湖体育馆","571");
+        buildingMap.put("松竹","12" );
+        buildingMap.put("桃苑","11" );
+        buildingMap.put("杏苑","13");
+        buildingMap.put( "用电单位","614");
+        buildingMap.put( "科创10","221");
+        buildingMap.put("行健楼","311" );
+        buildingMap.put("学02楼","214" );
+        buildingMap.put("学04楼","189" );
+        buildingMap.put("学05楼","190" );
+        buildingMap.put("学06楼","191" );
+        buildingMap.put("学07楼","192" );
+        buildingMap.put("学08楼","181" );
+        buildingMap.put("学13楼","318" );
+        buildingMap.put("学14楼","319" );
+        buildingMap.put("学15楼","320" );
+        buildingMap.put("学16楼","321" );
+        buildingMap.put("学17楼","1" );
         area.put("area", "1");
         area.put("areaname", "中国矿业大学");
         building.put("building", request.getBuilding());
-        building.put("buildingid", request.getBuildingID());
+        building.put("buildingid", buildingMap.get(request.getBuilding()));
         floor.put("floor", "");
         floor.put("floorid", "");
         room.put("roomid", request.getRoomID());
@@ -115,5 +173,4 @@ public class Spider {
             return "";
         }
     }
-
 }
